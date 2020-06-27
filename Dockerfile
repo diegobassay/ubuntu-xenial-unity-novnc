@@ -81,7 +81,7 @@ redirect_stderr=true\n\
 
 RUN echo '#!/bin/bash\n\
 [ -f $HOME/.vnc/passwd ] && vncserver -kill :1 && rm -rf $HOME/.vnc && rm -rf /tmp/.X1*\n\
-PASSWORD=``\n\
+PASSWORD=`echo budi`\n\
 su $USER -c "mkdir $HOME/.vnc && echo $PASSWORD | vncpasswd -f > $HOME/.vnc/passwd && chmod 600 $HOME/.vnc/passwd && touch $HOME/.Xresources"\n\
 chown -R $USER:$USER $HOME\n\
 [ ! -z "$SUDO" ] && adduser $USER sudo\n\
