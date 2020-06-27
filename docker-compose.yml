@@ -1,0 +1,10 @@
+version: '3'
+services:
+    web:
+        container_name: 'ubuntu-xenial-unity-novnc'
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - '5000:6080' 
+            - '5001:5901'
