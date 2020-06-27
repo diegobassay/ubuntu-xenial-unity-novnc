@@ -52,4 +52,41 @@ RUN cp -R $HOME/tigervnc/tigervnc-1.10.1.x86_64/* / && rm -rf $HOME/tigervnc/
 RUN git clone https://github.com/novnc/noVNC.git $HOME/novnc
 RUN cp $HOME/novnc/vnc.html $HOME/novnc/index.html
 
-RUN git clone https://github.com/kanaka/websockify $HOME/novnc/utils/websockify        
+RUN git clone https://github.com/kanaka/websockify $HOME/novnc/utils/websockify
+
+RUN echo '/usr/lib/gnome-session/gnome-session-binary --session=ubuntu &\n\
+/usr/lib/x86_64-linux-gnu/unity/unity-panel-service &\n\
+/usr/lib/unity-settings-daemon/unity-settings-daemon &\n\
+\n\
+for indicator in /usr/lib/x86_64-linux-gnu/indicator-*; do\n\
+basename=`basename ${indicator}`\n\
+dirname=`dirname ${indicator}`\n\
+service=${dirname}/${basename}/${basename}-service\n\
+${service} &\n\
+done\n\
+unity\n\
+' >$HOME/.xsession
+
+RUN echo '[program:vncserver]\n\
+command=vncserver -geometry 1366x768 :1\n\
+user=budi\n\
+\n\
+[program:novnc]\n\
+command=/home/budi/novnc/utils/launch.sh --vnc localhost:5901\n\
+user=budi\n\
+stdout_logfile=/var/log/novnc.log\n\
+redirect_stderr=true\n\
+' >/etc/supervisor/conf.d/supervisor.conf
+
+RUN echo '#!/bin/bash\n\
+[ -f $HOME/.vnc/passwd ] && vncserver -kill :1 && rm -rf $HOME/.vnc && rm -rf /tmp/.X1*\n\
+PASSWORD=``\n\
+su $USER -c "mkdir $HOME/.vnc && echo $PASSWORD | vncpasswd -f > $HOME/.vnc/passwd && chmod 600 $HOME/.vnc/passwd && touch $HOME/.Xresources"\n\
+chown -R $USER:$USER $HOME\n\
+[ ! -z "$SUDO" ] && adduser $USER sudo\n\
+/usr/bin/supervisord -n\n\
+' >$HOME/startup.sh
+
+RUN chmod +x $HOME/startup.sh
+
+CMD ["/bin/bash", "-c", "$HOME/startup.sh"]
