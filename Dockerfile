@@ -4,7 +4,8 @@ LABEL maintainer="diegobassay@gmail.com"
 ENV DEBIAN_FRONTEND noninteractive
 ENV USER budi
 ENV HOME /home/$USER
-RUN adduser $USER
+RUN chmod u+s /usr/bin/passwd
+RUN useradd -ms /bin/bash $USER
 RUN echo 'budi:budi' | chpasswd
 RUN usermod -aG sudo budi && whoami
 
